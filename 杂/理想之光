@@ -1,0 +1,129 @@
+import requests
+import json
+import time
+import urllib3
+
+class Question():
+    def __init__(self,questionId):
+        self.answerContent = ''  # index
+        self.qusetionId=questionId
+        self.answerId = ''
+baseheader={'User-Agent': 'CMREADHYBC7.1_1080*1920_V3.2(1080*1920;Meizu;M6 Note;Android7.1;cn;)',
+            'Accept': 'application/json, text/javascript, */*; q=0.01',
+            'Referer': 'https://www.qingsuyun.com/h5/107515/wap/exam/collection.html',
+            'Host': 'www.qingsuyun.com',
+            'Origin': 'https://www.qingsuyun.com',}
+postdata={'paperId':'1803217582',
+          'queryCollection':'false'}
+urllib3.disable_warnings()
+jsondata=requests.post('https://www.qingsuyun.com/h5/actions/exam/execute/exam-info.json?_=93422921',
+                headers=baseheader,data=postdata,verify=False).json()
+pageId=jsondata['body']['paperSheet']['id']
+id=jsondata['body']['factory']['creatorId']
+postdata={'paperId':pageId}
+
+jsondata=requests.post('https://www.qingsuyun.com/h5/actions/exam/execute/find-collection.json?_=18813814',
+                headers=baseheader,data=postdata,verify=False).json()
+idlist=[]
+for jsondat in jsondata['body']:
+    idlist.append(jsondat['id'])
+postdata={
+'collections[0].answerContent':input('姓名：'),
+'collections[0].fieldName':'姓名',
+'collections[0].fieldType':'NAME',
+'collections[0].paperCollectionId':idlist[0],
+'collections[0].sortIndex':'0',
+'collections[1].answerContent':input('学校：'),#学校
+'collections[1].fieldName':'学校',
+'collections[1].fieldType':'COMBO_BOX',
+'collections[1].paperCollectionId':idlist[1],
+'collections[1].sortIndex':'1',
+'collections[2].answerContent':input("学号："),#学号
+'collections[2].fieldName':'学号',
+'collections[2].fieldType':'PLAIN_TEXT',
+'collections[2].paperCollectionId':idlist[2],
+'collections[2].sortIndex':'2',
+'collections[3].answerContent':input('学院:'),#学院
+'collections[3].fieldName':'学院',
+'collections[3].fieldType':'PLAIN_TEXT',
+'collections[3].paperCollectionId':idlist[3],
+'collections[3].sortIndex':'3',
+'collections[4].answerContent':input('班级：'),#班级
+'collections[4].fieldName':'班级',
+'collections[4].fieldType':'PLAIN_TEXT',
+'collections[4].paperCollectionId':idlist[4],
+'collections[4].sortIndex':"4",
+'paperId':'1803217582',
+'startNow':'true',
+            }
+stoptime=int(input("一道题花费多长时间，输入整数，以秒为单位:"))
+questionok=int(input("你想答对几道题："))
+moreheaders=baseheader
+moreheaders['Host']='www.qingsuyun.com'
+moreheaders['Origin']='https://www.qingsuyun.com'
+moreheaders['X-Requested-With']='com.lxzg.client'
+moreheaders['Accept-Language']='zh-CN,en-US;q=0.8'
+
+jsondata=requests.post('https://www.qingsuyun.com/h5/actions/exam/execute/create-exam.json?_=70964389 ',
+                       headers=moreheaders,data=postdata,verify=False).json()
+answerId=jsondata['body']['answerId']
+userId=jsondata['body']["userId"]
+questionheaders=baseheader
+questionheaders['Referer']='https://www.qingsuyun.com/h5/107515/wap/exam/do-examing.html'
+questionheaders['Host']='www.qingsuyun.com'
+questiondata={'answerId':answerId,'queryItems':'true'}
+rawquestions=requests.post('https://www.qingsuyun.com/h5/actions/exam/execute/find-exam.json',headers=questionheaders,data=questiondata,verify=False).json()
+
+
+jsonquestions=rawquestions
+jsonquestions=jsonquestions['body']['examItems']
+questionlist=[]
+for jsonquestion in jsonquestions:
+    temp = []
+    question=Question(jsonquestion['questionId'])
+    question.answerId=jsonquestion['answerId']
+    try:
+        for js in jsonquestion['jsonData']['single']['options']:
+            if js['rightAnswers']==True:
+               temp.append(js['sortIndex'])
+    except:
+        for js in jsonquestion['jsonData']['multiple']['options']:
+            if js['rightAnswers']==True:
+                temp.append(js['sortIndex'])
+    finally:
+        question.answerContent=str(temp).replace('[','').replace(']','').replace(' ','')
+        questionlist.append(question)
+i=0
+postanswerheaders=baseheader
+postanswerheaders['Content-Type']='application/x-www-form-urlencoded; charset=UTF-8'
+postanswerheaders['Referer']='https://www.qingsuyun.com/h5/107515/wap/exam/do-examing.html'
+for question in questionlist[:questionok]:
+    answerpost = {'answerContent': question.answerContent,
+                  'answerId': question.answerId,
+                  'questionId': question.qusetionId}
+    r=requests.post('https://www.qingsuyun.com/h5/actions/exam/execute/submit-answer.json',
+                    headers=postanswerheaders,data=answerpost,verify=False)
+    i=i+1
+    print('\r已经完成{} %'.format(int(i/questionok*100)),end='')
+
+    time.sleep(stoptime)
+headers=baseheader
+headers['Referer']='https://www.qingsuyun.com/h5/107515/wap/exam/do-examing.html'
+
+endpost={'answerId':questionlist[0].answerId,'interrupt':'false'}
+
+r=requests.post('https://www.qingsuyun.com/h5/actions/exam/execute/finish-exam.json',
+                headers=headers, data=answerpost, verify=False)
+resultheaders=postanswerheaders
+headers['Referer']='https://www.qingsuyun.com/h5/107515/wap/exam/exam-detail.html'
+resultpost={'answerId':questionlist[0].answerId,'queryItems':'false','queryScoreLevels':'true'}
+jsondata=requests.post('https://www.qingsuyun.com/h5/actions/exam/execute/find-exam.json',
+                headers=resultheaders, data=resultpost, verify=False).json()
+print("请到该网址查询:https://www.qingsuyun.com/h5/107512/exam-result/%s/"%(jsondata['body']['answerSheet']['queryCode']))
+
+
+
+'''
+
+
+'''
