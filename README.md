@@ -5,4 +5,4 @@
 
 运行结果
 
-![](http://test.com)
+![](http://www.wujiashuai.com/static/upload/xiaoguo.jpg)
