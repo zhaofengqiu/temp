@@ -4,5 +4,4 @@
 2. 在命令行运行 python main.py
 
 运行结果
-
 ![](http://www.wujiashuai.com/static/upload/xiaoguo.jpg)
