@@ -18,7 +18,7 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/trojan-gfw/trojan-quicks
 ## 修改配置文件
 如果有需要，则修改下列中需要修改的部份
 ```
-cat >cat /usr/local/etc/trojan/config.json <<EOF
+cat >/usr/local/etc/trojan/config.json <<EOF
 {
     "run_type": "server",
     "local_addr": "0.0.0.0",
