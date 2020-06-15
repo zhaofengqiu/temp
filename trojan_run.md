@@ -17,21 +17,27 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/trojan-gfw/trojan-quicks
 
 ## 修改配置文件
 如果有需要，则修改下列中需要修改的部份
+|配置文件内容| 含义|
+|--|--|
+|"local_port": 443|服务器监听端口，也就是客户端填写的远程端口
+|"password1"| 一个用户，一个密码。多个用户，就加多个密码|
+|cert、key| 证书|
+
 ```
 cat >/usr/local/etc/trojan/config.json <<EOF
 {
     "run_type": "server",
     "local_addr": "0.0.0.0",
-    "local_port": 443, # 服务器监听端口，也就是客户端填写的远程端口
+    "local_port": 443,
     "remote_addr": "127.0.0.1",
     "remote_port": 80, 
     "password": [
-        "password1", # 一个用户，一个密码。多个用户，就加多个密码
+        "password1",
         "password2"
     ],
     "log_level": 1,
     "ssl": {
-        "cert": "/etc/certificate.pem", # 这里是前面生成的证书，如果自己已经有了证书，那么就直接替换掉即可。下面的key也要替换。
+        "cert": "/etc/certificate.pem",
         "key": "/etc/key.pem",
         "key_password": "",
         "cipher": "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384",
@@ -76,3 +82,4 @@ EOF
 ```shell
 service trojan restart
 ```
+
