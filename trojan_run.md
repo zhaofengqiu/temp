@@ -78,6 +78,10 @@ cat >/usr/local/etc/trojan/config.json <<EOF
 }
 EOF
 ```
+## 开机自启
+```shell
+systemctl enable trojan 
+```
 ## 重启trojan
 ```shell
 service trojan restart
