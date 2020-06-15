@@ -71,3 +71,7 @@ cat >cat /usr/local/etc/trojan/config.json <<EOF
 }
 EOF
 ```
+## 重启trojan
+```shell
+service trojan restart
+```
